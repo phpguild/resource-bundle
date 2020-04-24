@@ -1,0 +1,3 @@
+phpguild_resource:
+  resource: .
+  type: phpguild_resource

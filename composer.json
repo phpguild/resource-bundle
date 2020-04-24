@@ -1,0 +1,23 @@
+{
+  "name": "phpguild/resource-bundle",
+  "description": "Resource Bundle",
+  "type": "symfony-bundle",
+  "license": "GPL-3.0",
+  "authors": [
+    {
+      "name": "Johnstyle",
+      "homepage": "https://github.com/johnstyle"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "symfony/dependency-injection": "*",
+    "symfony/http-kernel": "*",
+    "symfony/config": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "PhpGuild\\ResourceBundle\\": "src/"
+    }
+  }
+}
