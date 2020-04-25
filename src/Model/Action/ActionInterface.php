@@ -48,22 +48,6 @@ interface ActionInterface
     public function setDefault(bool $default): ActionInterface;
 
     /**
-     * getFields
-     *
-     * @return FieldInterface[]
-     */
-    public function getFields(): array;
-
-    /**
-     * setFields
-     *
-     * @param FieldInterface[] $fields
-     *
-     * @return ActionInterface|self
-     */
-    public function setFields(array $fields): ActionInterface;
-
-    /**
      * getController
      *
      * @return string|null
@@ -78,4 +62,37 @@ interface ActionInterface
      * @return ActionInterface|self
      */
     public function setController(?string $controller): ActionInterface;
+
+    /**
+     * getRepository
+     *
+     * @return Repository|null
+     */
+    public function getRepository(): ?Repository;
+
+    /**
+     * setRepository
+     *
+     * @param Repository|null $repository
+     *
+     * @return ActionInterface|self
+     */
+    public function setRepository(?Repository $repository): ActionInterface;
+
+
+    /**
+     * getFields
+     *
+     * @return FieldInterface[]
+     */
+    public function getFields(): array;
+
+    /**
+     * setFields
+     *
+     * @param FieldInterface[] $fields
+     *
+     * @return ActionInterface|self
+     */
+    public function setFields(array $fields): ActionInterface;
 }

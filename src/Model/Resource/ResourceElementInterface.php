@@ -13,6 +13,22 @@ use PhpGuild\ResourceBundle\Model\Field\RouteInterface;
 interface ResourceElementInterface
 {
     /**
+     * getModel
+     *
+     * @return string|null
+     */
+    public function getModel(): ?string;
+
+    /**
+     * setModel
+     *
+     * @param string|null $model
+     *
+     * @return ResourceElementInterface|self
+     */
+    public function setModel(?string $model): ResourceElementInterface;
+
+    /**
      * getPrimaryRoute
      *
      * @return RouteInterface|null

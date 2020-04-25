@@ -57,13 +57,28 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
             }
         }
 
+        $resourceDefaults = [];
+
         foreach ($data['resources'] as $name => $resource) {
+            if (false === $resource) {
+                unset($data['resources'][$name]);
+                continue;
+            }
+
+            if ('_defaults' === $name) {
+                $resourceDefaults = $data['resources'][$name];
+                unset($data['resources'][$name]);
+                continue;
+            }
+
             $data['resources'][$name]['model'] = $name;
         }
 
         $data['resources'] = array_values($data['resources']);
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
+            'resourceDefaults' => $resourceDefaults,
+        ]));
     }
 
     /**

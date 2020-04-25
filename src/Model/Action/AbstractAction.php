@@ -19,11 +19,14 @@ abstract class AbstractAction implements ActionInterface
     /** @var bool $default */
     protected $default = false;
 
-    /** @var FieldInterface[] $fields */
-    protected $fields = [];
-
     /** @var string|null $controller */
     protected $controller;
+
+    /** @var Repository|null $repository */
+    protected $repository;
+
+    /** @var FieldInterface[] $fields */
+    protected $fields = [];
 
     /**
      * getRoute
@@ -74,30 +77,6 @@ abstract class AbstractAction implements ActionInterface
     }
 
     /**
-     * getFields
-     *
-     * @return FieldInterface[]
-     */
-    public function getFields(): array
-    {
-        return $this->fields;
-    }
-
-    /**
-     * setFields
-     *
-     * @param array $fields
-     *
-     * @return ActionInterface|self
-     */
-    public function setFields(array $fields): ActionInterface
-    {
-        $this->fields = $fields;
-
-        return $this;
-    }
-
-    /**
      * getController
      *
      * @return string|null
@@ -117,6 +96,54 @@ abstract class AbstractAction implements ActionInterface
     public function setController(?string $controller): ActionInterface
     {
         $this->controller = $controller;
+
+        return $this;
+    }
+
+    /**
+     * getRepository
+     *
+     * @return Repository|null
+     */
+    public function getRepository(): ?Repository
+    {
+        return $this->repository;
+    }
+
+    /**
+     * setRepository
+     *
+     * @param Repository|null $repository
+     *
+     * @return ActionInterface|self
+     */
+    public function setRepository(?Repository $repository): ActionInterface
+    {
+        $this->repository = $repository;
+
+        return $this;
+    }
+
+    /**
+     * getFields
+     *
+     * @return FieldInterface[]
+     */
+    public function getFields(): array
+    {
+        return $this->fields;
+    }
+
+    /**
+     * setFields
+     *
+     * @param array $fields
+     *
+     * @return ActionInterface|self
+     */
+    public function setFields(array $fields): ActionInterface
+    {
+        $this->fields = $fields;
 
         return $this;
     }

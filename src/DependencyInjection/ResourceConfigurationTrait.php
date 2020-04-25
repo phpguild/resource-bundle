@@ -29,6 +29,7 @@ trait ResourceConfigurationTrait
 
                             $context
                             ->arrayNode('resources')
+                                ->cannotBeEmpty()
                                 ->normalizeKeys(false)
                                 ->useAttributeAsKey('name', false)
                                 ->defaultValue([])

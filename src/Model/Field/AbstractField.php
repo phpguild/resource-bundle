@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Model\Field;
 
+use PhpGuild\ResourceBundle\Model\Format\FormatCollectionInterface;
+use PhpGuild\ResourceBundle\Model\Format\FormatInterface;
+
 /**
  * Class AbstractField
  */
@@ -17,6 +20,9 @@ abstract class AbstractField implements FieldInterface
 
     /** @var string|null $label */
     protected $label;
+
+    /** @var FormatCollectionInterface|FormatInterface|string|null $format */
+    protected $format;
 
     /**
      * getName
@@ -86,6 +92,30 @@ abstract class AbstractField implements FieldInterface
     public function setLabel(?string $label): FieldInterface
     {
         $this->label = $label;
+
+        return $this;
+    }
+
+    /**
+     * getFormat
+     *
+     * @return FormatInterface|string|null
+     */
+    public function getFormat()
+    {
+        return $this->format;
+    }
+
+    /**
+     * setFormat
+     *
+     * @param FormatInterface|string|null $format
+     *
+     * @return FieldInterface|self
+     */
+    public function setFormat($format): FieldInterface
+    {
+        $this->format = $format;
 
         return $this;
     }

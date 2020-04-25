@@ -8,6 +8,7 @@ use PhpGuild\ResourceBundle\Handler\ConfigurationProcessorHandler;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceCollectionInterface;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceElementInterface;
+use PhpGuild\ResourceBundle\Model\Resource\ResourceParameters;
 use Psr\Cache\InvalidArgumentException;
 use Symfony\Component\Config\Loader\Loader as AbstractLoader;
 use Symfony\Component\Routing\Route;
@@ -67,8 +68,13 @@ class Loader extends AbstractLoader
                             continue;
                         }
 
+                        $resourceParameters = new ResourceParameters();
+                        $resourceParameters->setFields($action->getFields());
+                        $resourceParameters->setRepository($action->getRepository());
+
                         $routes->add($actionRoute->getName(), new Route($actionRoute->getPath(), [
                             '_controller' => $action->getController(),
+                            '_resourceParameters' => serialize($resourceParameters),
                         ]));
                     }
                 }

@@ -12,6 +12,9 @@ use PhpGuild\ResourceBundle\Model\Field\RouteInterface;
  */
 class ResourceElement implements ResourceElementInterface
 {
+    /** @var string|null $model */
+    protected $model;
+
     /** @var RouteInterface|null $primaryRoute */
     protected $primaryRoute;
 
@@ -23,6 +26,30 @@ class ResourceElement implements ResourceElementInterface
 
     /** @var ActionInterface[] $actions */
     protected $actions = [];
+
+    /**
+     * getModel
+     *
+     * @return string|null
+     */
+    public function getModel(): ?string
+    {
+        return $this->model;
+    }
+
+    /**
+     * setModel
+     *
+     * @param string|null $model
+     *
+     * @return ResourceElementInterface|self
+     */
+    public function setModel(?string $model): ResourceElementInterface
+    {
+        $this->model = $model;
+
+        return $this;
+    }
 
     /**
      * getPrimaryRoute
