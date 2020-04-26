@@ -4,7 +4,6 @@ namespace PhpGuild\ResourceBundle\Normalizer;
 
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\MappingException;
 use PhpGuild\ResourceBundle\Model\Field\FieldInterface;
 use PhpGuild\ResourceBundle\Model\Format\ActionCollectionFormat;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
@@ -18,6 +17,9 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
 {
     /** @var ObjectNormalizer $normalizer */
     private $normalizer;
+
+    /** @var ClassMetadata $resourceMetaData */
+    private $resourceMetaData;
 
     /**
      * FieldDenormalizer constructor.
@@ -43,15 +45,14 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        /** @var ClassMetadata $resourceMetadata */
-        $resourceMetadata = $context['resourceMetadata'];
+        $this->resourceMetaData = $context['resourceMetadata'];
 
         if (!\is_array($data)) {
             $data = [ 'name' => $data ];
         }
 
         $this->prepareLabel($data, $context);
-        $this->prepareAction($data, $resourceMetadata);
+        $this->prepareAction($data);
 
         return $this->normalizer->denormalize($data, $type, $format, $context);
     }
@@ -76,10 +77,9 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
     /**
      * prepareAction
      *
-     * @param array         $data
-     * @param ClassMetadata $resourceMetadata
+     * @param array $data
      */
-    private function prepareAction(array &$data, ClassMetadata $resourceMetadata): void
+    private function prepareAction(array &$data): void
     {
         if ('_actions' === $data['name']) {
             $data['type'] = 'action';
@@ -90,8 +90,8 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
                 ];
             }
 
-        } elseif ($resourceMetadata->hasField($data['name'])) {
-            foreach ($resourceMetadata->getFieldMapping($data['name']) as $name => $mapping) {
+        } elseif ($this->resourceMetaData->hasField($data['name'])) {
+            foreach ($this->resourceMetaData->getFieldMapping($data['name']) as $name => $mapping) {
                 if (isset($data[$name])) {
                     continue;
                 }

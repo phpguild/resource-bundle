@@ -3,8 +3,8 @@
 namespace PhpGuild\ResourceBundle\Normalizer;
 
 use Doctrine\ORM\EntityManagerInterface;
-use PhpGuild\ResourceBundle\Model\Resource\ResourceCollection;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceCollectionInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -20,18 +20,24 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
+    /** @var array $defaultDefinitions */
+    private $defaultDefinitions;
+
     /**
-     * ResourceCollectionNormalizer constructor.
+     * ResourceCollectionDenormalizer constructor.
      *
      * @param ObjectNormalizer       $normalizer
      * @param EntityManagerInterface $entityManager
+     * @param ParameterBagInterface  $parameterBag
      */
     public function __construct(
         ObjectNormalizer $normalizer,
-        EntityManagerInterface $entityManager
+        EntityManagerInterface $entityManager,
+        ParameterBagInterface $parameterBag
     ) {
         $this->normalizer = $normalizer;
         $this->entityManager = $entityManager;
+        $this->defaultDefinitions = $parameterBag->get('phpguild_resource')['_definitions'];
     }
 
     /**
@@ -47,6 +53,21 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
+        $this->prepareResources($data, $context);
+
+        return $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
+            '_definitions' => array_replace_recursive($this->defaultDefinitions, $context['_definitions'] ?? []),
+        ]));
+    }
+
+    /**
+     * prepareResources
+     *
+     * @param array $data
+     * @param array $context
+     */
+    private function prepareResources(array &$data, array &$context): void
+    {
         if (!\count($data['resources'])) {
             foreach ($this->entityManager->getMetadataFactory()->getAllMetadata() as $metadata) {
                 if ($metadata->isMappedSuperclass) {
@@ -57,16 +78,18 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
             }
         }
 
-        $resourceDefaults = [];
+        $context['_defaults'] = [];
 
         foreach ($data['resources'] as $name => $resource) {
+            // Ignore disabled resource
             if (false === $resource) {
                 unset($data['resources'][$name]);
                 continue;
             }
 
+            // Extract defaults action
             if ('_defaults' === $name) {
-                $resourceDefaults = $data['resources'][$name];
+                $context['_defaults'] = $data['resources'][$name];
                 unset($data['resources'][$name]);
                 continue;
             }
@@ -75,10 +98,6 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
         }
 
         $data['resources'] = array_values($data['resources']);
-
-        return $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
-            'resourceDefaults' => $resourceDefaults,
-        ]));
     }
 
     /**

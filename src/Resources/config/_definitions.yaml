@@ -1,0 +1,8 @@
+parameters:
+  phpguild_resource:
+    _definitions:
+      actions:
+        list: PhpGuild\ResourceBundle\Model\Action\ListAction
+        update: PhpGuild\ResourceBundle\Model\Action\UpdateAction
+        create: PhpGuild\ResourceBundle\Model\Action\CreateAction
+        form: PhpGuild\ResourceBundle\Model\Action\FormAction

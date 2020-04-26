@@ -11,9 +11,6 @@ use PhpGuild\ResourceBundle\Model\Field\ListField;
  */
 class ListAction extends AbstractAction
 {
-    /** @var string */
-    public const ACTION_NAME = 'list';
-
     /** @var string $controller */
     protected $controller = \PhpGuild\ResourceBundle\Action\ListAction::class;
 

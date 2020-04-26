@@ -5,7 +5,6 @@ namespace PhpGuild\ResourceBundle\Normalizer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use PhpGuild\ResourceBundle\Handler\ActionModelHandler;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceElement;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceElementInterface;
@@ -24,24 +23,27 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
-    /** @var ActionModelHandler $actionModelHandler */
-    private $actionModelHandler;
+    /** @var ClassMetadata $resourceMetaData */
+    private $resourceMetaData;
+
+    /** @var array $definitions */
+    private $definitions;
+
+    /** @var array $defaults */
+    private $defaults;
 
     /**
      * ResourceElementDenormalizer constructor.
      *
      * @param ObjectNormalizer       $normalizer
      * @param EntityManagerInterface $entityManager
-     * @param ActionModelHandler     $actionModelHandler
      */
     public function __construct(
         ObjectNormalizer $normalizer,
-        EntityManagerInterface $entityManager,
-        ActionModelHandler $actionModelHandler
+        EntityManagerInterface $entityManager
     ) {
         $this->normalizer = $normalizer;
         $this->entityManager = $entityManager;
-        $this->actionModelHandler = $actionModelHandler;
     }
 
     /**
@@ -53,20 +55,23 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
      * @param array       $context
      *
      * @return array|object|ResourceElement
+     *
      * @throws ExceptionInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        $resourceMetaData = $this->entityManager->getClassMetadata($data['model']);
+        $this->definitions = $context['_definitions'] ?? [];
+        $this->defaults = $context['_defaults'] ?? [];
+        $this->resourceMetaData = $this->entityManager->getClassMetadata($data['model']);
 
-        $this->prepareName($data, $resourceMetaData);
+        $this->prepareName($data);
         $this->prepareLabel($data, $context);
         $this->prepareActions($data);
 
         /** @var ResourceElement $resourceElement */
         $resourceElement = $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
             'resourceName' => $data['name'],
-            'resourceMetadata' => $resourceMetaData,
+            'resourceMetadata' => $this->resourceMetaData,
         ]));
 
         /** @var ActionInterface $defaultAction */
@@ -79,14 +84,13 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
     /**
      * prepareName
      *
-     * @param array         $data
-     * @param ClassMetadata $resourceMetaData
+     * @param array $data
      */
-    private function prepareName(array &$data, ClassMetadata $resourceMetaData): void
+    private function prepareName(array &$data): void
     {
         $data['name'] = Inflector::tableize(substr(
-            $resourceMetaData->getName(),
-            strrpos($resourceMetaData->getName(), '\\') + 1
+            $this->resourceMetaData->getName(),
+            strrpos($this->resourceMetaData->getName(), '\\') + 1
         ));
     }
 
@@ -108,14 +112,25 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
      */
     private function prepareActions(array &$data): void
     {
+        // If not exist, add default resource actions
+        if (isset($this->defaults['actions']) && \is_array($this->defaults['actions'])) {
+            foreach ($this->defaults['actions'] as $actionName => $actionConfiguration) {
+                if (isset($data['actions'][$actionName])) {
+                    continue;
+                }
+
+                $data['actions'][$actionName] = $actionConfiguration;
+            }
+        }
+
+        // If empty actions, add all resource actions from global definitions
         if (!isset($data['actions']) || !\is_array($data['actions'])) {
-            $actionNames = $this->actionModelHandler->getActionNames();
-            $data['actions'] = array_combine($actionNames, array_map(static function () {
-                return [];
-            }, $actionNames));
+            $actionNames = array_keys($this->definitions['actions'] ?? []);
+            $data['actions'] = array_combine($actionNames, array_map(static function () { return []; }, $actionNames));
         }
 
         foreach ($data['actions'] as $name => &$action) {
+            // Ignore disabled action
             if (false === $action) {
                 unset($data['actions'][$name]);
                 continue;
@@ -126,6 +141,11 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
             }
 
             $action['name'] = $name;
+
+            // Set model action from global definitions
+            if (!isset($action['model'])) {
+                $action['model'] = $this->definitions['actions'][$name] ?? null;
+            }
         }
 
         unset($action);

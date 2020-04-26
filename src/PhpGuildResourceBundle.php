@@ -8,7 +8,6 @@ use PhpGuild\ResourceBundle\Configuration\ConfigurationProcessorInterface;
 use PhpGuild\ResourceBundle\DependencyInjection\Compiler\ConfigurationProcessorPass;
 use PhpGuild\ResourceBundle\DependencyInjection\PhpGuildResourceExtension;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
-use PhpGuild\ResourceBundle\DependencyInjection\Compiler\ActionModelPass;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
@@ -18,7 +17,6 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 class PhpGuildResourceBundle extends Bundle
 {
-    public const ACTION_MODEL_TAG = 'phpguild_resource.action_model';
     public const CONFIGURATION_PROCESSOR_TAG = 'phpguild_resource.configuration_processor';
 
     /**
@@ -29,12 +27,6 @@ class PhpGuildResourceBundle extends Bundle
     public function build(ContainerBuilder $container): void
     {
         parent::build($container);
-
-        $container
-            ->registerForAutoconfiguration(ActionInterface::class)
-            ->addTag(self::ACTION_MODEL_TAG)
-        ;
-        $container->addCompilerPass(new ActionModelPass());
 
         $container
             ->registerForAutoconfiguration(ConfigurationProcessorInterface::class)

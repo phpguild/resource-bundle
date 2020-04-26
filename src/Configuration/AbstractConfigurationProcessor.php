@@ -84,7 +84,12 @@ abstract class AbstractConfigurationProcessor implements ConfigurationProcessorI
                         json_encode($configuration),
                         $this->resourceCollectionClass,
                         'json',
-                        compact('processorName', 'contextName')
+                        array_merge(compact('processorName', 'contextName'), [
+                            '_definitions' => array_replace_recursive(
+                                $this->originalConfiguration['_definitions'] ?? [],
+                                $configuration['_definitions'] ?? []
+                            )
+                        ])
                     );
                 }
             );

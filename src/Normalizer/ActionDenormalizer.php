@@ -3,9 +3,7 @@
 namespace PhpGuild\ResourceBundle\Normalizer;
 
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
-use Doctrine\ORM\Mapping\MappingException;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
-use PhpGuild\ResourceBundle\Handler\ActionModelHandler;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -18,19 +16,20 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
     /** @var ObjectNormalizer $normalizer */
     private $normalizer;
 
-    /** @var ActionModelHandler $actionModelHandler */
-    private $actionModelHandler;
+    /** @var ClassMetadata $resourceMetaData */
+    private $resourceMetaData;
+
+    /** @var array $defaults */
+    private $defaults;
 
     /**
      * ActionDenormalizer constructor.
      *
      * @param ObjectNormalizer   $normalizer
-     * @param ActionModelHandler $actionModelHandler
      */
-    public function __construct(ObjectNormalizer $normalizer, ActionModelHandler $actionModelHandler)
+    public function __construct(ObjectNormalizer $normalizer)
     {
         $this->normalizer = $normalizer;
-        $this->actionModelHandler = $actionModelHandler;
     }
 
     /**
@@ -45,26 +44,25 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
      *
      * @throws DenormalizerException
      * @throws ExceptionInterface
-     * @throws MappingException
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        $actionClassName = $this->actionModelHandler->get($data['name']);
-
-        if (!$actionClassName) {
-            throw new DenormalizerException();
+        if (!isset($data['model']) || !is_a($data['model'], ActionInterface::class, true)) {
+            throw new DenormalizerException(sprintf(
+                'Action model class "%s" does not implement "%s" interface',
+                $data['model'],
+                ActionInterface::class
+            ), 1003);
         }
 
-        $default = $context['resourceDefaults']['actions'][$data['name']] ?? [];
-
-        /** @var ClassMetadata $resourceMetadata */
-        $resourceMetadata = $context['resourceMetadata'];
+        $this->defaults = $context['_defaults']['actions'][$data['name']] ?? [];
+        $this->resourceMetaData = $context['resourceMetadata'];
 
         $this->prepareRoute($data, $context);
-        $this->prepareFields($data, $resourceMetadata, $default);
-        $this->prepareRepository($data, $resourceMetadata);
+        $this->prepareFields($data);
+        $this->prepareRepository($data);
 
-        return $this->normalizer->denormalize($data, get_class($actionClassName), $format, array_merge($context, [
+        return $this->normalizer->denormalize($data, $data['model'], $format, array_merge($context, [
             'actionName' => $data['name'],
         ]));
     }
@@ -102,15 +100,11 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
     /**
      * prepareFields
      *
-     * @param array         $data
-     * @param ClassMetadata $resourceMetadata
-     * @param array         $default
-     *
-     * @throws MappingException
+     * @param array $data
      */
-    private function prepareFields(array &$data, ClassMetadata $resourceMetadata, array $default): void
+    private function prepareFields(array &$data): void
     {
-        foreach ($default['fields'] ?? [] as $defaultField) {
+        foreach ($this->defaults['fields'] ?? [] as $defaultField) {
             $defaultFieldName = is_array($defaultField) ? $defaultField['name'] : $defaultField;
 
             $existField = false;
@@ -132,30 +126,27 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
             $data['fields'][] = $defaultField;
         }
 
-        $this->prepareFieldsMetadata($data, $resourceMetadata);
+        $this->prepareFieldsMetadata($data);
     }
 
     /**
      * prepareFieldsMetadata
      *
-     * @param array         $data
-     * @param ClassMetadata $resourceMetadata
-     *
-     * @throws MappingException
+     * @param array $data
      */
-    private function prepareFieldsMetadata(array &$data, ClassMetadata $resourceMetadata): void
+    private function prepareFieldsMetadata(array &$data): void
     {
         if (isset($data['fields'])) {
             return;
         }
 
-        $fields = $resourceMetadata->getFieldNames();
+        $fields = $this->resourceMetaData->getFieldNames();
 
         if ('form' === $data['name']) {
-            $identifierIndex = array_search($resourceMetadata->getSingleIdentifierFieldName(), $fields, true);
+            $identifierIndex = array_search($this->resourceMetaData->getSingleIdentifierFieldName(), $fields, true);
 
             if (false !== $identifierIndex) {
-                unset($fields[$identifierIndex]);
+                unset($fields[(string) $identifierIndex]);
             }
         }
 
@@ -165,16 +156,15 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
     /**
      * prepareRepository
      *
-     * @param array         $data
-     * @param ClassMetadata $resourceMetadata
+     * @param array $data
      */
-    private function prepareRepository(array &$data, ClassMetadata $resourceMetadata): void
+    private function prepareRepository(array &$data): void
     {
         if (!isset($data['repository'])) {
             $data['repository'] = [];
         }
 
-        $data['repository']['model'] = $resourceMetadata->getName();
+        $data['repository']['model'] = $this->resourceMetaData->getName();
     }
 
     /**

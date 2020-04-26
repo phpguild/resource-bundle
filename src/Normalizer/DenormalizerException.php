@@ -2,9 +2,11 @@
 
 namespace PhpGuild\ResourceBundle\Normalizer;
 
+use PhpGuild\ResourceBundle\Exception\ResourceException;
+
 /**
  * Class DenormalizerException
  */
-class DenormalizerException extends \Exception
+class DenormalizerException extends ResourceException
 {
 }

@@ -19,27 +19,78 @@ trait ResourceConfigurationTrait
      */
     protected function addResourceConfiguration(ArrayNodeDefinition $rootNode): void
     {
-        $context = $rootNode
+        $nodeBuilder = $rootNode->children();
+
+        $this->addContexts($nodeBuilder);
+        $this->addDefinitions($nodeBuilder);
+
+        $nodeBuilder->end();
+    }
+
+    /**
+     * addContexts
+     *
+     * @param NodeBuilder $nodeBuilder
+     */
+    private function addContexts(NodeBuilder $nodeBuilder): void
+    {
+        $node = $nodeBuilder
+            ->arrayNode('contexts')
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->arrayPrototype()
+                    ->children();
+
+                        $this->addResources($node);
+                        $this->addDefinitions($node);
+                        $this->addResourceConfigurationContext($node);
+
+                    $node
+                    ->end()
+                ->end()
+            ->end()
+        ;
+    }
+
+    /**
+     * addResources
+     *
+     * @param NodeBuilder $nodeBuilder
+     */
+    private function addResources(NodeBuilder $nodeBuilder): void
+    {
+        $nodeBuilder
+            ->arrayNode('resources')
+                ->useAttributeAsKey('name', false)
+                ->cannotBeEmpty()
+                ->defaultValue([])
+                ->prototype('variable')
+            ->end()
+        ;
+    }
+
+    /**
+     * addDefinitions
+     *
+     * @param NodeBuilder $nodeBuilder
+     */
+    private function addDefinitions(NodeBuilder $nodeBuilder): void
+    {
+        $nodeBuilder
+            ->arrayNode('_definitions')
             ->children()
-                ->arrayNode('contexts')
-                    ->isRequired()
-                    ->cannotBeEmpty()
-                    ->prototype('array')
-                        ->children();
+                ->arrayNode('actions')
+                    ->children()
+                        ->scalarNode('list')->end()
+                        ->scalarNode('create')->end()
+                        ->scalarNode('update')->end()
+                        ->scalarNode('form')->end()
 
-                            $context
-                            ->arrayNode('resources')
-                                ->cannotBeEmpty()
-                                ->normalizeKeys(false)
-                                ->useAttributeAsKey('name', false)
-                                ->defaultValue([])
-                                ->prototype('variable')
-                            ->end();
 
-                            $this->addResourceConfigurationContext($context);
-
-                            $context
-                        ->end()
+    //                                ->useAttributeAsKey('name', false)
+    //                                ->cannotBeEmpty()
+    //                                ->defaultValue([])
+    //                                ->prototype('variable')
                     ->end()
                 ->end()
             ->end()
@@ -49,9 +100,9 @@ trait ResourceConfigurationTrait
     /**
      * addResourceConfigurationContext
      *
-     * @param NodeBuilder $context
+     * @param NodeBuilder $nodeBuilder
      */
-    public function addResourceConfigurationContext(NodeBuilder $context): void
+    private function addResourceConfigurationContext(NodeBuilder $nodeBuilder): void
     {
     }
 }
