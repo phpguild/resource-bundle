@@ -2,12 +2,14 @@
 
 declare(strict_types=1);
 
-namespace PhpGuild\ResourceBundle\Model\Format;
+namespace PhpGuild\ResourceBundle\Model\Type\Link;
+
+use PhpGuild\ResourceBundle\Model\Type\TypeInterface;
 
 /**
- * Interface ActionFormatInterface
+ * Interface LinkTypeInterface
  */
-interface ActionFormatInterface
+interface LinkTypeInterface extends TypeInterface
 {
     /**
      * getLabel
@@ -21,9 +23,9 @@ interface ActionFormatInterface
      *
      * @param string|null $label
      *
-     * @return ActionFormatInterface|self
+     * @return LinkTypeInterface|self
      */
-    public function setLabel(?string $label): ActionFormatInterface;
+    public function setLabel(?string $label): LinkTypeInterface;
 
     /**
      * getRoute
@@ -37,7 +39,7 @@ interface ActionFormatInterface
      *
      * @param string|null $route
      *
-     * @return ActionFormatInterface|self
+     * @return LinkTypeInterface|self
      */
-    public function setRoute(?string $route): ActionFormatInterface;
+    public function setRoute(?string $route): LinkTypeInterface;
 }

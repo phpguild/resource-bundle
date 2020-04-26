@@ -5,7 +5,7 @@ namespace PhpGuild\ResourceBundle\Normalizer;
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use PhpGuild\ResourceBundle\Model\Field\FieldInterface;
-use PhpGuild\ResourceBundle\Model\Format\ActionCollectionFormat;
+use PhpGuild\ResourceBundle\Model\Type\DefaultType;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
@@ -20,6 +20,9 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
 
     /** @var ClassMetadata $resourceMetaData */
     private $resourceMetaData;
+
+    /** @var array $definitions */
+    private $definitions;
 
     /**
      * FieldDenormalizer constructor.
@@ -45,6 +48,7 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
+        $this->definitions = $context['_definitions'] ?? [];
         $this->resourceMetaData = $context['resourceMetadata'];
 
         if (!\is_array($data)) {
@@ -52,7 +56,7 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
         }
 
         $this->prepareLabel($data, $context);
-        $this->prepareAction($data);
+        $this->prepareType($data);
 
         return $this->normalizer->denormalize($data, $type, $format, $context);
     }
@@ -75,20 +79,14 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
     }
 
     /**
-     * prepareAction
+     * prepareType
      *
      * @param array $data
      */
-    private function prepareAction(array &$data): void
+    private function prepareType(array &$data): void
     {
         if ('_actions' === $data['name']) {
-            $data['type'] = 'action';
-            if (!isset($data['format'])) {
-                $data['format'] = [
-                    ActionCollectionFormat::class,
-                    [ [ 'label' => 'toto', 'route' => 'tata' ] ],
-                ];
-            }
+            $data['type'] = $data['type'] ?? 'links';
 
         } elseif ($this->resourceMetaData->hasField($data['name'])) {
             foreach ($this->resourceMetaData->getFieldMapping($data['name']) as $name => $mapping) {
@@ -99,6 +97,9 @@ class FieldDenormalizer implements ContextAwareDenormalizerInterface
                 $data[$name] = $mapping;
             }
         }
+
+        $data['type'] = [ $data['type'] ?? null, $data['format'] ?? null ];
+        unset($data['format']);
     }
 
     /**

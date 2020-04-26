@@ -6,3 +6,6 @@ parameters:
         update: PhpGuild\ResourceBundle\Model\Action\UpdateAction
         create: PhpGuild\ResourceBundle\Model\Action\CreateAction
         form: PhpGuild\ResourceBundle\Model\Action\FormAction
+      types:
+        links: PhpGuild\ResourceBundle\Model\Type\Link\LinkCollectionType
+        link: PhpGuild\ResourceBundle\Model\Type\Link\LinkType

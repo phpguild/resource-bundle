@@ -2,13 +2,18 @@
 
 declare(strict_types=1);
 
-namespace PhpGuild\ResourceBundle\Model\Format;
+namespace PhpGuild\ResourceBundle\Model\Type\Link;
+
+use PhpGuild\ResourceBundle\Model\Type\AbstractType;
 
 /**
- * Class ActionFormat
+ * Class LinkType
  */
-class ActionFormat implements ActionFormatInterface
+class LinkType extends AbstractType implements LinkTypeInterface
 {
+    /** @var string|null $name */
+    protected $name = 'link';
+
     /** @var string|null $label */
     private $label;
 
@@ -30,9 +35,9 @@ class ActionFormat implements ActionFormatInterface
      *
      * @param string|null $label
      *
-     * @return ActionFormatInterface|self
+     * @return LinkTypeInterface|self
      */
-    public function setLabel(?string $label): ActionFormatInterface
+    public function setLabel(?string $label): LinkTypeInterface
     {
         $this->label = $label;
 
@@ -54,9 +59,9 @@ class ActionFormat implements ActionFormatInterface
      *
      * @param string|null $route
      *
-     * @return ActionFormatInterface|self
+     * @return LinkTypeInterface|self
      */
-    public function setRoute(?string $route): ActionFormatInterface
+    public function setRoute(?string $route): LinkTypeInterface
     {
         $this->route = $route;
 

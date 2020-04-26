@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Model\Field;
 
-use PhpGuild\ResourceBundle\Model\Format\FormatInterface;
+use PhpGuild\ResourceBundle\Model\Type\TypeInterface;
 
 /**
  * Interface FieldInterface
@@ -28,22 +28,6 @@ interface FieldInterface
     public function setName(?string $name): FieldInterface;
 
     /**
-     * getType
-     *
-     * @return string|null
-     */
-    public function getType(): ?string;
-
-    /**
-     * setType
-     *
-     * @param string|null $type
-     *
-     * @return FieldInterface|self
-     */
-    public function setType(?string $type): FieldInterface;
-
-    /**
      * getLabel
      *
      * @return string|null
@@ -60,18 +44,18 @@ interface FieldInterface
     public function setLabel(?string $label): FieldInterface;
 
     /**
-     * getFormat
+     * getType
      *
-     * @return FormatInterface|string|null
+     * @return TypeInterface|null
      */
-    public function getFormat();
+    public function getType(): ?TypeInterface;
 
     /**
-     * setFormat
+     * setType
      *
-     * @param FormatInterface|string|null $format
+     * @param TypeInterface|null $type
      *
      * @return FieldInterface|self
      */
-    public function setFormat($format): FieldInterface;
+    public function setType(?TypeInterface $type): FieldInterface;
 }

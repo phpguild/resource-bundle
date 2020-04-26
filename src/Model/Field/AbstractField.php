@@ -4,8 +4,7 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Model\Field;
 
-use PhpGuild\ResourceBundle\Model\Format\FormatCollectionInterface;
-use PhpGuild\ResourceBundle\Model\Format\FormatInterface;
+use PhpGuild\ResourceBundle\Model\Type\TypeInterface;
 
 /**
  * Class AbstractField
@@ -15,14 +14,11 @@ abstract class AbstractField implements FieldInterface
     /** @var string|null $name */
     protected $name;
 
-    /** @var string|null $type */
-    protected $type;
-
     /** @var string|null $label */
     protected $label;
 
-    /** @var FormatCollectionInterface|FormatInterface|string|null $format */
-    protected $format;
+    /** @var TypeInterface|null $type */
+    protected $type;
 
     /**
      * getName
@@ -44,30 +40,6 @@ abstract class AbstractField implements FieldInterface
     public function setName(?string $name): FieldInterface
     {
         $this->name = $name;
-
-        return $this;
-    }
-
-    /**
-     * getType
-     *
-     * @return string|null
-     */
-    public function getType(): ?string
-    {
-        return $this->type;
-    }
-
-    /**
-     * setType
-     *
-     * @param string|null $type
-     *
-     * @return FieldInterface|self
-     */
-    public function setType(?string $type): FieldInterface
-    {
-        $this->type = $type;
 
         return $this;
     }
@@ -97,25 +69,25 @@ abstract class AbstractField implements FieldInterface
     }
 
     /**
-     * getFormat
+     * getType
      *
-     * @return FormatInterface|string|null
+     * @return TypeInterface|null
      */
-    public function getFormat()
+    public function getType(): ?TypeInterface
     {
-        return $this->format;
+        return $this->type;
     }
 
     /**
-     * setFormat
+     * setType
      *
-     * @param FormatInterface|string|null $format
+     * @param TypeInterface|null $type
      *
      * @return FieldInterface|self
      */
-    public function setFormat($format): FieldInterface
+    public function setType(?TypeInterface $type): FieldInterface
     {
-        $this->format = $format;
+        $this->type = $type;
 
         return $this;
     }
