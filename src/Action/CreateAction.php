@@ -4,13 +4,12 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Action;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CreateAction
  */
-class CreateAction extends AbstractController
+class CreateAction extends AbstractAction
 {
     /**
      * __invoke
@@ -19,6 +18,6 @@ class CreateAction extends AbstractController
      */
     public function __invoke(): Response
     {
-        return new Response('CreateAction');
+        return $this->render('@RhapsodyAdminLte/resource/action/create.html.twig');
     }
 }

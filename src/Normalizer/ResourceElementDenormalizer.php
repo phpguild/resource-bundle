@@ -4,33 +4,19 @@ namespace PhpGuild\ResourceBundle\Normalizer;
 
 use Doctrine\Common\Inflector\Inflector;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceElement;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceElementInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
  * Class ResourceElementDenormalizer
  */
-class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
+class ResourceElementDenormalizer extends AbstractDenormalizer
 {
-    /** @var ObjectNormalizer $normalizer */
-    private $normalizer;
-
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
-
-    /** @var ClassMetadata $resourceMetaData */
-    private $resourceMetaData;
-
-    /** @var array $definitions */
-    private $definitions;
-
-    /** @var array $defaults */
-    private $defaults;
 
     /**
      * ResourceElementDenormalizer constructor.
@@ -38,11 +24,10 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
      * @param ObjectNormalizer       $normalizer
      * @param EntityManagerInterface $entityManager
      */
-    public function __construct(
-        ObjectNormalizer $normalizer,
-        EntityManagerInterface $entityManager
-    ) {
-        $this->normalizer = $normalizer;
+    public function __construct(ObjectNormalizer $normalizer, EntityManagerInterface $entityManager)
+    {
+        parent::__construct($normalizer);
+
         $this->entityManager = $entityManager;
     }
 
@@ -60,18 +45,17 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        $this->definitions = $context['_definitions'] ?? [];
-        $this->defaults = $context['_defaults'] ?? [];
-        $this->resourceMetaData = $this->entityManager->getClassMetadata($data['model']);
+        $context['resourceMetadata'] = $this->entityManager->getClassMetadata($data['model']);
+
+        parent::denormalize($data, $type, $format, $context);
 
         $this->prepareName($data);
-        $this->prepareLabel($data, $context);
+        $this->prepareLabel($data);
         $this->prepareActions($data);
 
         /** @var ResourceElement $resourceElement */
         $resourceElement = $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
-            'resourceName' => $data['name'],
-            'resourceMetadata' => $this->resourceMetaData,
+            'resourceName' => $this->resourceName,
         ]));
 
         /** @var ActionInterface $defaultAction */
@@ -92,17 +76,24 @@ class ResourceElementDenormalizer implements ContextAwareDenormalizerInterface
             $this->resourceMetaData->getName(),
             strrpos($this->resourceMetaData->getName(), '\\') + 1
         ));
+
+        $this->prepareValue($data['name']);
+
+        $this->resourceName = $data['name'];
     }
 
     /**
      * prepareLabel
      *
      * @param array $data
-     * @param array $context
      */
-    private function prepareLabel(array &$data, array $context): void
+    private function prepareLabel(array &$data): void
     {
-        $data['label'] = $data['label'] ?? sprintf('%s.%s.label', $context['contextName'], $data['name']);
+        if (!isset($data['label'])) {
+            $data['label'] = '{_context}.{_resource}.label';
+        }
+
+        $this->prepareValue($data['label']);
     }
 
     /**

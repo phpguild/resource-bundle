@@ -2,36 +2,14 @@
 
 namespace PhpGuild\ResourceBundle\Normalizer;
 
-use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
  * Class ActionDenormalizer
  */
-class ActionDenormalizer implements ContextAwareDenormalizerInterface
+class ActionDenormalizer extends AbstractDenormalizer
 {
-    /** @var ObjectNormalizer $normalizer */
-    private $normalizer;
-
-    /** @var ClassMetadata $resourceMetaData */
-    private $resourceMetaData;
-
-    /** @var array $defaults */
-    private $defaults;
-
-    /**
-     * ActionDenormalizer constructor.
-     *
-     * @param ObjectNormalizer   $normalizer
-     */
-    public function __construct(ObjectNormalizer $normalizer)
-    {
-        $this->normalizer = $normalizer;
-    }
-
     /**
      * denormalize
      *
@@ -47,6 +25,12 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
+        $context['actionName'] = $data['name'];
+
+        parent::denormalize($data, $type, $format, $context);
+
+        $this->defaults = $this->defaults['actions'][$data['name']] ?? [];
+
         if (!isset($data['model']) || !is_a($data['model'], ActionInterface::class, true)) {
             throw new DenormalizerException(sprintf(
                 'Action model class "%s" does not implement "%s" interface',
@@ -55,45 +39,48 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
             ), 1003);
         }
 
-        $this->defaults = $context['_defaults']['actions'][$data['name']] ?? [];
-        $this->resourceMetaData = $context['resourceMetadata'];
-
-        $this->prepareRoute($data, $context);
+        $this->prepareRoute($data);
         $this->prepareFields($data);
         $this->prepareRepository($data);
 
-        return $this->normalizer->denormalize($data, $data['model'], $format, array_merge($context, [
-            'actionName' => $data['name'],
-        ]));
+        return $this->normalizer->denormalize($data, $data['model'], $format, $context);
     }
 
     /**
      * prepareRoute
      *
      * @param array $data
-     * @param array $context
      */
-    private function prepareRoute(array &$data, array $context): void
+    private function prepareRoute(array &$data): void
     {
         if (!isset($data['route'])) {
             $data['route'] = [];
         }
 
+        if (!\is_array($data['route'])) {
+            $data['route'] = [ 'name' => $data['route'] ];
+        }
+
         if (!isset($data['route']['name'])) {
-            $data['route']['name'] = sprintf(
-                '%s_%s_%s',
-                $context['contextName'],
-                $context['resourceName'],
-                $data['name']
-            );
+            $data['route']['name'] = $data['model']::ROUTE_NAME;
+            $this->prepareValue($data['route']['name']);
         }
 
         if (!isset($data['route']['path'])) {
-            $data['route']['path'] = sprintf(
-                '%s%s',
-                $context['resourceName'],
-                ('list' !== $data['name'] ? '/' . $data['name'] : '')
-            );
+            $data['route']['path'] = $data['model']::ROUTE_PATH;
+            $this->prepareValue($data['route']['path']);
+        }
+
+        if (!isset($data['route']['methods'])) {
+            $data['route']['methods'] = $data['model']::ROUTE_METHODS;
+        }
+
+        if (!isset($data['route']['parameters'])) {
+            $data['route']['parameters'] = $data['model']::ROUTE_PARAMETERS;
+        }
+
+        if (!isset($data['route']['requirements'])) {
+            $data['route']['requirements'] = $data['model']::ROUTE_REQUIREMENTS;
         }
     }
 
@@ -142,6 +129,7 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
 
         $fields = $this->resourceMetaData->getFieldNames();
 
+        // @Todo
         if ('form' === $data['name']) {
             $identifierIndex = array_search($this->resourceMetaData->getSingleIdentifierFieldName(), $fields, true);
 
@@ -149,6 +137,8 @@ class ActionDenormalizer implements ContextAwareDenormalizerInterface
                 unset($fields[(string) $identifierIndex]);
             }
         }
+
+        $fields[] = '_actions';
 
         $data['fields'] = $fields;
     }

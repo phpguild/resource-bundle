@@ -75,7 +75,7 @@ class Loader extends AbstractLoader
                         $routes->add($actionRoute->getName(), new Route($actionRoute->getPath(), [
                             '_controller' => $action->getController(),
                             '_resourceParameters' => serialize($resourceParameters),
-                        ]));
+                        ], $actionRoute->getRequirements(), [], null, [], $actionRoute->getMethods()));
                     }
                 }
             }

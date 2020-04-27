@@ -5,15 +5,18 @@ declare(strict_types=1);
 namespace PhpGuild\ResourceBundle\Model\Action;
 
 use PhpGuild\ResourceBundle\Model\Field\FieldInterface;
-use PhpGuild\ResourceBundle\Model\Field\RouteInterface;
+use PhpGuild\ResourceBundle\Model\RouteInterface;
 
 /**
  * Interface ActionInterface
  */
 interface ActionInterface
 {
-    /** @var string|null */
-    public const ACTION_NAME = null;
+    public const ROUTE_NAME = '{_context}_{_resource}_{_action}';
+    public const ROUTE_PATH = '{_resource}/{_action}';
+    public const ROUTE_METHODS = [ 'GET' ];
+    public const ROUTE_PARAMETERS = [];
+    public const ROUTE_REQUIREMENTS = [];
 
     /**
      * getRoute

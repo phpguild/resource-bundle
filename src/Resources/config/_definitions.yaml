@@ -5,6 +5,7 @@ parameters:
         list: PhpGuild\ResourceBundle\Model\Action\ListAction
         update: PhpGuild\ResourceBundle\Model\Action\UpdateAction
         create: PhpGuild\ResourceBundle\Model\Action\CreateAction
+#        delete: PhpGuild\ResourceBundle\Model\Action\DeleteAction
         form: PhpGuild\ResourceBundle\Model\Action\FormAction
       types:
         links: PhpGuild\ResourceBundle\Model\Type\Link\LinkCollectionType

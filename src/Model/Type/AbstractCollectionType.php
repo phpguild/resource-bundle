@@ -31,7 +31,15 @@ abstract class AbstractCollectionType extends AbstractType implements TypeCollec
      */
     public function setCollection(array $collection): TypeCollectionInterface
     {
-        $this->collection = $collection;
+        $this->collection = [];
+
+        foreach ($collection as $item) {
+            if (!$item) {
+                continue;
+            }
+
+            $this->collection[] = $item;
+        }
 
         return $this;
     }

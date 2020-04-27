@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Model\Type\Link;
 
+use PhpGuild\ResourceBundle\Model\Route;
 use PhpGuild\ResourceBundle\Model\Type\TypeInterface;
 
 /**
@@ -30,16 +31,16 @@ interface LinkTypeInterface extends TypeInterface
     /**
      * getRoute
      *
-     * @return string|null
+     * @return Route|null
      */
-    public function getRoute(): ?string;
+    public function getRoute(): ?Route;
 
     /**
      * setRoute
      *
-     * @param string|null $route
+     * @param Route|null $route
      *
      * @return LinkTypeInterface|self
      */
-    public function setRoute(?string $route): LinkTypeInterface;
+    public function setRoute(?Route $route): LinkTypeInterface;
 }

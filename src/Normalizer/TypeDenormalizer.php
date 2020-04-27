@@ -6,30 +6,12 @@ use PhpGuild\ResourceBundle\Model\Type\DefaultType;
 use PhpGuild\ResourceBundle\Model\Type\TypeCollectionInterface;
 use PhpGuild\ResourceBundle\Model\Type\TypeInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
-use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
  * Class TypeDenormalizer
  */
-class TypeDenormalizer implements ContextAwareDenormalizerInterface
+class TypeDenormalizer extends AbstractDenormalizer
 {
-    /** @var ObjectNormalizer $normalizer */
-    private $normalizer;
-
-    /** @var array $definitions */
-    private $definitions;
-
-    /**
-     * FieldNormalizer constructor.
-     *
-     * @param ObjectNormalizer $normalizer
-     */
-    public function __construct(ObjectNormalizer $normalizer)
-    {
-        $this->normalizer = $normalizer;
-    }
-
     /**
      * denormalize
      *
@@ -38,14 +20,14 @@ class TypeDenormalizer implements ContextAwareDenormalizerInterface
      * @param string|null $format
      * @param array       $context
      *
-     * @return array|object
+     * @return array|object|void
      *
      * @throws DenormalizerException
      * @throws ExceptionInterface
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        $this->definitions = $context['_definitions'] ?? [];
+        parent::denormalize($data, $type, $format, $context);
 
         $this->prepareType($data, $type);
 
@@ -55,8 +37,8 @@ class TypeDenormalizer implements ContextAwareDenormalizerInterface
     /**
      * prepareType
      *
-     * @param array $data
-     * @param       $type
+     * @param array  $data
+     * @param string $type
      *
      * @throws DenormalizerException
      */

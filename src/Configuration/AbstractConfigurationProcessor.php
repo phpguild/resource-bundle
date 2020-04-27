@@ -76,7 +76,34 @@ abstract class AbstractConfigurationProcessor implements ConfigurationProcessorI
 
         $processorName = str_replace('\\', '.', Inflector::tableize(get_class($this)));
 
+//        dump($this->originalConfiguration);
+
         foreach ($this->originalConfiguration['contexts'] as $contextName => $configuration) {
+
+
+//            try {
+//                /** @var ResourceCollection $debug */
+//                $debug = $this->serializer->deserialize(
+//                    json_encode($configuration),
+//                    $this->resourceCollectionClass,
+//                    'json',
+//                    array_merge(compact('processorName', 'contextName'), [
+//                        '_definitions' => array_replace_recursive(
+//                            $this->originalConfiguration['_definitions'] ?? [],
+//                            $configuration['_definitions'] ?? []
+//                        )
+//                    ])
+//                );
+//                foreach ($debug->getResources()[0]->getActions()[0]->getFields() as $field) {
+//                    dump($field);
+//                }
+//                dump($debug);
+//            } catch (\Exception $exception) {
+//                dump($exception);
+//            }
+//            exit;
+
+
             $this->collection[$contextName] = $this->cache->get(
                 sprintf('%s.configuration.%s', $processorName, $contextName),
                 function () use ($processorName, $contextName, $configuration) {

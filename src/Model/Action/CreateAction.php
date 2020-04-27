@@ -9,8 +9,7 @@ namespace PhpGuild\ResourceBundle\Model\Action;
  */
 class CreateAction extends FormAction
 {
-    /** @var string */
-    public const ACTION_NAME = 'create';
+    public const ROUTE_METHODS = [ 'GET', 'POST' ];
 
     /** @var string $controller */
     protected $controller = \PhpGuild\ResourceBundle\Action\CreateAction::class;

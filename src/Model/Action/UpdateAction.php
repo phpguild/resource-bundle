@@ -9,8 +9,9 @@ namespace PhpGuild\ResourceBundle\Model\Action;
  */
 class UpdateAction extends FormAction
 {
-    /** @var string */
-    public const ACTION_NAME = 'update';
+    public const ROUTE_PATH = '{_resource}/{id}/{_action}';
+    public const ROUTE_METHODS = [ 'GET', 'PUT' ];
+    public const ROUTE_PARAMETERS = [ 'id' => '{resource.id}' ];
 
     /** @var string $controller */
     protected $controller = \PhpGuild\ResourceBundle\Action\UpdateAction::class;

@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PhpGuild\ResourceBundle\Model\Action;
 
 use PhpGuild\ResourceBundle\Model\Field\FieldInterface;
-use PhpGuild\ResourceBundle\Model\Field\RouteInterface;
-use PhpGuild\ResourceBundle\Model\Field\Route;
+use PhpGuild\ResourceBundle\Model\RouteInterface;
+use PhpGuild\ResourceBundle\Model\Route;
 
 /**
  * Class Action

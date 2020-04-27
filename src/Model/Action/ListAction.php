@@ -11,6 +11,8 @@ use PhpGuild\ResourceBundle\Model\Field\ListField;
  */
 class ListAction extends AbstractAction
 {
+    public const ROUTE_PATH = '{_resource}';
+
     /** @var string $controller */
     protected $controller = \PhpGuild\ResourceBundle\Action\ListAction::class;
 

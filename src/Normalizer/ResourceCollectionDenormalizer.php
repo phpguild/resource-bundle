@@ -6,17 +6,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use PhpGuild\ResourceBundle\Model\Resource\ResourceCollectionInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Serializer\Exception\ExceptionInterface;
-use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
  * Class ResourceCollectionDenormalizer
  */
-class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterface
+class ResourceCollectionDenormalizer extends AbstractDenormalizer
 {
-    /** @var ObjectNormalizer $normalizer */
-    private $normalizer;
-
     /** @var EntityManagerInterface $entityManager */
     private $entityManager;
 
@@ -35,7 +31,8 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
         EntityManagerInterface $entityManager,
         ParameterBagInterface $parameterBag
     ) {
-        $this->normalizer = $normalizer;
+        parent::__construct($normalizer);
+
         $this->entityManager = $entityManager;
         $this->defaultDefinitions = $parameterBag->get('phpguild_resource')['_definitions'];
     }
@@ -53,11 +50,13 @@ class ResourceCollectionDenormalizer implements ContextAwareDenormalizerInterfac
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
+        $context['_definitions'] = array_replace_recursive($this->defaultDefinitions, $context['_definitions'] ?? []);
+
+        parent::denormalize($data, $type, $format, $context);
+
         $this->prepareResources($data, $context);
 
-        return $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
-            '_definitions' => array_replace_recursive($this->defaultDefinitions, $context['_definitions'] ?? []),
-        ]));
+        return $this->normalizer->denormalize($data, $type, $format, $context);
     }
 
     /**

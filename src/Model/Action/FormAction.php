@@ -11,9 +11,6 @@ use PhpGuild\ResourceBundle\Model\Field\FormField;
  */
 class FormAction extends AbstractAction
 {
-    /** @var string */
-    public const ACTION_NAME = 'form';
-
     /** @var FormField[] $fields */
     protected $fields = [];
 }

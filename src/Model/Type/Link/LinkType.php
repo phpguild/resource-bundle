@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PhpGuild\ResourceBundle\Model\Type\Link;
 
+use PhpGuild\ResourceBundle\Model\Route;
 use PhpGuild\ResourceBundle\Model\Type\AbstractType;
 
 /**
@@ -17,7 +18,7 @@ class LinkType extends AbstractType implements LinkTypeInterface
     /** @var string|null $label */
     private $label;
 
-    /** @var string|null $route */
+    /** @var Route|null $route */
     private $route;
 
     /**
@@ -47,9 +48,9 @@ class LinkType extends AbstractType implements LinkTypeInterface
     /**
      * getRoute
      *
-     * @return string|null
+     * @return Route|null
      */
-    public function getRoute(): ?string
+    public function getRoute(): ?Route
     {
         return $this->route;
     }
@@ -57,11 +58,11 @@ class LinkType extends AbstractType implements LinkTypeInterface
     /**
      * setRoute
      *
-     * @param string|null $route
+     * @param Route|null $route
      *
      * @return LinkTypeInterface|self
      */
-    public function setRoute(?string $route): LinkTypeInterface
+    public function setRoute(?Route $route): LinkTypeInterface
     {
         $this->route = $route;
 

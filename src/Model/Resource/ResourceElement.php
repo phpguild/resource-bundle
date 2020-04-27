@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PhpGuild\ResourceBundle\Model\Resource;
 
 use PhpGuild\ResourceBundle\Model\Action\ActionInterface;
-use PhpGuild\ResourceBundle\Model\Field\RouteInterface;
+use PhpGuild\ResourceBundle\Model\RouteInterface;
 
 /**
  * Class ResourceElement

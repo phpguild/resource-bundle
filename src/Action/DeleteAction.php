@@ -7,9 +7,9 @@ namespace PhpGuild\ResourceBundle\Action;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class UpdateAction
+ * Class DeleteAction
  */
-class UpdateAction extends AbstractAction
+class DeleteAction extends AbstractAction
 {
     /**
      * __invoke
@@ -18,6 +18,6 @@ class UpdateAction extends AbstractAction
      */
     public function __invoke(): Response
     {
-        return $this->render('@RhapsodyAdminLte/resource/action/update.html.twig');
+        return new Response('DeleteAction');
     }
 }
