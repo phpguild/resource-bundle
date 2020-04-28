@@ -1,0 +1,21 @@
+parameters:
+  phpguild_resource_tests:
+
+    test001:
+      contexts:
+        main:
+
+    test002:
+      contexts:
+        main:
+          resources:
+            PhpGuild\ResourceBundle\Tests\Entity\User:
+              actions:
+                list:
+                  default: true
+                  fields:
+                    - firstName
+                    - lastName
+                    - username
+                    - email
+                    - { name: createdAt, format: d/m/Y }

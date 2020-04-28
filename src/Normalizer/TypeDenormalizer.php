@@ -31,7 +31,7 @@ class TypeDenormalizer extends AbstractDenormalizer
 
         $this->prepareType($data, $type);
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->denormalizer->denormalize($data, $type, $format, $context);
     }
 
     /**
@@ -84,6 +84,7 @@ class TypeDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, TypeInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, TypeInterface::class, true);
     }
 }

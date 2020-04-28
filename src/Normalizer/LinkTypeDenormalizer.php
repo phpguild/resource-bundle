@@ -37,7 +37,7 @@ class LinkTypeDenormalizer extends AbstractDenormalizer
             return null;
         }
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->denormalizer->denormalize($data, $type, $format, $context);
     }
 
     /**
@@ -78,6 +78,7 @@ class LinkTypeDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, LinkTypeInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, LinkTypeInterface::class, true);
     }
 }

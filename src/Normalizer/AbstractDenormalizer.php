@@ -5,6 +5,7 @@ namespace PhpGuild\ResourceBundle\Normalizer;
 use Doctrine\Common\Persistence\Mapping\ClassMetadata;
 use Symfony\Component\Serializer\Exception\BadMethodCallException;
 use Symfony\Component\Serializer\Normalizer\ContextAwareDenormalizerInterface;
+use Symfony\Component\Serializer\Normalizer\DenormalizerInterface;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
@@ -12,8 +13,8 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
  */
 abstract class AbstractDenormalizer implements ContextAwareDenormalizerInterface
 {
-    /** @var ObjectNormalizer $normalizer */
-    protected $normalizer;
+    /** @var DenormalizerInterface */
+    protected $denormalizer;
 
     /** @var array $definitions */
     protected $definitions = [];
@@ -43,23 +44,16 @@ abstract class AbstractDenormalizer implements ContextAwareDenormalizerInterface
      */
     public function __construct(ObjectNormalizer $normalizer)
     {
-        $this->normalizer = $normalizer;
+        $this->denormalizer = $normalizer;
     }
 
     /**
-     * denormalize
-     *
-     * @param mixed       $data
-     * @param string      $type
-     * @param string|null $format
-     * @param array       $context
-     *
-     * @return array|object|void
+     * {@inheritdoc}
      */
     public function denormalize($data, string $type, string $format = null, array $context = [])
     {
-        if (null === $this->normalizer) {
-            throw new BadMethodCallException('Please set a serializer before calling denormalize()!');
+        if (null === $this->denormalizer) {
+            throw new BadMethodCallException('Please set a denormalizer before calling denormalize()!');
         }
 
         $this->definitions = $context['_definitions'] ?? [];
@@ -69,6 +63,18 @@ abstract class AbstractDenormalizer implements ContextAwareDenormalizerInterface
         $this->resourceName = $context['resourceName'] ?? null;
         $this->actionName = $context['actionName'] ?? null;
         $this->fieldName = $context['fieldName'] ?? null;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
+    {
+        if (null === $this->denormalizer) {
+            throw new BadMethodCallException(sprintf('The denormalizer needs to be set to allow "%s()" to be used.', __METHOD__));
+        }
+
+        return true;
     }
 
     /**

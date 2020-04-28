@@ -56,7 +56,7 @@ class ResourceCollectionDenormalizer extends AbstractDenormalizer
 
         $this->prepareResources($data, $context);
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->denormalizer->denormalize($data, $type, $format, $context);
     }
 
     /**
@@ -67,7 +67,9 @@ class ResourceCollectionDenormalizer extends AbstractDenormalizer
      */
     private function prepareResources(array &$data, array &$context): void
     {
-        if (!\count($data['resources'])) {
+        if (!isset($data['resources']) || !\count($data['resources'])) {
+            $data['resources'] = [];
+
             foreach ($this->entityManager->getMetadataFactory()->getAllMetadata() as $metadata) {
                 if ($metadata->isMappedSuperclass) {
                     continue;
@@ -111,6 +113,7 @@ class ResourceCollectionDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, ResourceCollectionInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, ResourceCollectionInterface::class, true);
     }
 }

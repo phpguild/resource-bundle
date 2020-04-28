@@ -54,7 +54,7 @@ class ResourceElementDenormalizer extends AbstractDenormalizer
         $this->prepareActions($data);
 
         /** @var ResourceElement $resourceElement */
-        $resourceElement = $this->normalizer->denormalize($data, $type, $format, array_merge($context, [
+        $resourceElement = $this->denormalizer->denormalize($data, $type, $format, array_merge($context, [
             'resourceName' => $this->resourceName,
         ]));
 
@@ -156,6 +156,7 @@ class ResourceElementDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, ResourceElementInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, ResourceElementInterface::class, true);
     }
 }

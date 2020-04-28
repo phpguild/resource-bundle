@@ -11,13 +11,26 @@
   ],
   "require": {
     "php": ">=7.1",
+    "symfony/config": "*",
     "symfony/dependency-injection": "*",
     "symfony/http-kernel": "*",
-    "symfony/config": "*"
+    "symfony/serializer-pack": "^1.0"
+  },
+  "require-dev": {
+    "doctrine/doctrine-bundle": "^2.0",
+    "doctrine/orm": "^2.6",
+    "phpunit/phpunit": "^8.5",
+    "symfony/phpunit-bridge": "*",
+    "symfony/yaml": "*"
   },
   "autoload": {
     "psr-4": {
       "PhpGuild\\ResourceBundle\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "PhpGuild\\ResourceBundle\\Tests\\": "tests/src/"
     }
   }
 }

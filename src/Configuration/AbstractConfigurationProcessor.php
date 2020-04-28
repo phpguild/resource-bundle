@@ -15,20 +15,20 @@ use Symfony\Contracts\Cache\CacheInterface;
  */
 abstract class AbstractConfigurationProcessor implements ConfigurationProcessorInterface
 {
-    /** @var bool $builded */
-    private $builded = false;
-
     /** @var SerializerInterface $serializer */
-    private $serializer;
+    protected $serializer;
 
     /** @var CacheInterface $cache */
-    private $cache;
+    protected $cache;
+
+    /** @var bool $builded */
+    protected $builded = false;
 
     /** @var array $collection */
-    private $collection = [];
+    protected $collection = [];
 
     /** @var array $originalConfiguration */
-    private $originalConfiguration;
+    protected $originalConfiguration;
 
     /** @var string $resourceCollectionClass */
     protected $resourceCollectionClass = ResourceCollection::class;
@@ -56,7 +56,7 @@ abstract class AbstractConfigurationProcessor implements ConfigurationProcessorI
      * @return array
      * @throws InvalidArgumentException
      */
-    final public function getCollection(): array
+    public function getCollection(): array
     {
         $this->build();
 
@@ -68,7 +68,7 @@ abstract class AbstractConfigurationProcessor implements ConfigurationProcessorI
      *
      * @throws InvalidArgumentException
      */
-    private function build(): void
+    protected function build(): void
     {
         if (true === $this->builded) {
             return;
@@ -81,47 +81,52 @@ abstract class AbstractConfigurationProcessor implements ConfigurationProcessorI
         foreach ($this->originalConfiguration['contexts'] as $contextName => $configuration) {
 
 
-//            try {
-//                /** @var ResourceCollection $debug */
-//                $debug = $this->serializer->deserialize(
-//                    json_encode($configuration),
-//                    $this->resourceCollectionClass,
-//                    'json',
-//                    array_merge(compact('processorName', 'contextName'), [
-//                        '_definitions' => array_replace_recursive(
-//                            $this->originalConfiguration['_definitions'] ?? [],
-//                            $configuration['_definitions'] ?? []
-//                        )
-//                    ])
-//                );
-//                foreach ($debug->getResources()[0]->getActions()[0]->getFields() as $field) {
-//                    dump($field);
-//                }
-//                dump($debug);
-//            } catch (\Exception $exception) {
-//                dump($exception);
-//            }
-//            exit;
+            try {
+                /** @var ResourceCollection $debug */
+                $debug = $this->deserialize($processorName, $contextName, $configuration);
+                foreach ($debug->getResources()[0]->getActions()[0]->getFields() as $field) {
+                    dump($field);
+                }
+                dump($debug);
+            } catch (\Exception $exception) {
+                dump($exception);
+            }
+            exit;
 
 
             $this->collection[$contextName] = $this->cache->get(
                 sprintf('%s.configuration.%s', $processorName, $contextName),
                 function () use ($processorName, $contextName, $configuration) {
-                    return $this->serializer->deserialize(
-                        json_encode($configuration),
-                        $this->resourceCollectionClass,
-                        'json',
-                        array_merge(compact('processorName', 'contextName'), [
-                            '_definitions' => array_replace_recursive(
-                                $this->originalConfiguration['_definitions'] ?? [],
-                                $configuration['_definitions'] ?? []
-                            )
-                        ])
-                    );
+                    return $this->deserialize($processorName, $contextName, $configuration);
                 }
             );
         }
 
         $this->builded = true;
+    }
+
+    /**
+     * deserialize
+     *
+     * @param string $processorName
+     * @param string $contextName
+     * @param array  $configuration
+     *
+     * @return array|object
+     */
+    protected function deserialize(string $processorName, string $contextName, array $configuration)
+    {
+        $context = compact('processorName', 'contextName');
+        $context['_definitions'] = array_replace_recursive(
+            $this->originalConfiguration['_definitions'] ?? [],
+            $configuration['_definitions'] ?? []
+        );
+
+        return $this->serializer->deserialize(
+            json_encode($configuration),
+            $this->resourceCollectionClass,
+            'json',
+            $context
+        );
     }
 }

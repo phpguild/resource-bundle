@@ -35,7 +35,7 @@ class FieldDenormalizer extends AbstractDenormalizer
 
         $this->prepareType($data);
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->denormalizer->denormalize($data, $type, $format, $context);
     }
 
     /**
@@ -101,6 +101,7 @@ class FieldDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, FieldInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, FieldInterface::class, true);
     }
 }

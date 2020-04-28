@@ -32,7 +32,7 @@ class RouteDenormalizer extends AbstractDenormalizer
 
         $this->prepareValue($data['name']);
 
-        return $this->normalizer->denormalize($data, $type, $format, $context);
+        return $this->denormalizer->denormalize($data, $type, $format, $context);
     }
 
     /**
@@ -47,6 +47,7 @@ class RouteDenormalizer extends AbstractDenormalizer
      */
     public function supportsDenormalization($data, string $type, string $format = null, array $context = []): bool
     {
-        return is_a($type, RouteInterface::class, true);
+        return parent::supportsDenormalization($data, $type, $format, $context)
+            && is_a($type, RouteInterface::class, true);
     }
 }

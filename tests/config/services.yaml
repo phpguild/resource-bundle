@@ -1,0 +1,11 @@
+imports:
+  - { resource: phpguild_resource_tests.yaml }
+
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  PhpGuild\ResourceBundle\Tests\Service\ConfigurationProcessor:
+    arguments: [ '%phpguild_resource_tests%' ]
+    public: true
